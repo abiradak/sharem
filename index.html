@@ -6,7 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script type="text/javascript" src="data.json"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"
         integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA=="
@@ -31,54 +30,25 @@
 </head>
 
 <body>
-    <h4>Done</h4>
-    <form action="" method="get">
-        <input type="date" id="date" name="">
-        <input type="button" value="submit" onclick="submit()">
-    </form>
-
-
-    <!-- <table id ="table">
-        <thead>
-            
-        </thead>
-        <tbody id="table-body">
-            
-        </tbody>
-    </table> -->
     <div id="tableExample">
         <div ng-controller="pageController">
-            <h1>DataTable</h1>
+            <select ng-model="selectedName" ng-options="x for x in names" ng-change="selectRow(x)">
+            </select>
             <table datatable options="dataTableOptions" items="updatedbniftydata"></table>
         </div>
     </div>
 </body>
 <script>
-    $.get(
-        "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
-    ).done((data) => {
-        console.log('>>>>>>>', data.records);
-        var filtered = data.filtered.data;
-        var records = data.records.data;
-    }); 
-    console.log('filtered data', filtered);
-    console.log('records data', records);
     var app = angular.module('tableExample', []);
-
     // console.clear();
-
     app.directive('datatable', function () {
         return {
             restrict: 'E, A, C',
             link: function (scope, element, attrs, controller) {
-                //scope - directive internal scope
-
-                var dataTable = element.dataTable(scope.options); //init plugin
-
+                var dataTable = element.dataTable(scope.options);
                 var mapToDatatableFormat = function (data) {
                     return data.map(scope.options.columnMap)
                 }
-
                 scope.$watch('items', function (newData) {
                     console.log("new items:", scope.options);
                     if (newData) {
@@ -103,25 +73,37 @@
     });
 
     app.controller('pageController', function ($scope) {
-        $scope.bniftydata = filtered.sort((a, b) => {
-            return b.strikePrice - a.strikePrice;
-        });
-
-        $scope.updatedbniftydata = [];
-        // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
-        var ud = 39400;
-        var position = $scope.bniftydata.findIndex(items => items.strikePrice === ud);
-        $scope.bniftydata.map((item, key) => {
-            for (i = position - 10; i <= position + 10; i++) {
-                if (key === i) {
-                    $scope.updatedbniftydata.push(item);
-                }
+        $scope.names = ["Emil", "Tobias", "Linus"];
+        $.get(
+            "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
+        ).done((data) => {
+            console.log('>>>>>>>', data.records);
+            // $scope.records = data.records.data;
+            if (data) {
+                $scope.dates = data.records.expiryDates;
+                $scope.bniftydata = data.filtered.data.sort((a, b) => {
+                    return b.strikePrice - a.strikePrice;
+                });
+                $scope.updatedbniftydata = [];
+                // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
+                var ud = 39400;
+                var position = $scope.bniftydata.findIndex(items => items.strikePrice === ud);
+                $scope.bniftydata.map((item, key) => {
+                    for (i = position - 10; i <= position + 10; i++) {
+                        if (key === i) {
+                            $scope.updatedbniftydata.push(item);
+                        }
+                    }
+                });
             }
         });
+
+
         // $scope.updatedbniftydata.sort((a, b) => {
         //     return b.strikePrice - a.strikePrice;
         // });
-
+        
+        
         $scope.selections = function () {
             return $scope.updatedbniftydata.filter(function (contact) {
                 return contact.selected;
@@ -129,7 +111,6 @@
         }
 
         $scope.dataTableOptions = {
-            //TODO: move some of this into datatable directive?
             columns: [
                 { title: "Strike" },
                 { title: "Previus Call OI" },
@@ -187,8 +168,8 @@
                     $(row).addClass('red');
                 }
             },
-            select: { // DataTables Select extension
-                style: 'multi', //multi-item selection
+            select: { 
+                style: 'multi',
                 selector: 'td:first-child'
             },
             order: [[0, 'desc']],
@@ -200,6 +181,7 @@
         var bootElement = document.getElementById("tableExample");
         angular.bootstrap(bootElement, ['tableExample']);
     });
+    
 
 </script>
 
