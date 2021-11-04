@@ -99,9 +99,9 @@
         });
 
         if ($scope.jsondata) {
-            $scope.dates = jsondata.records.expiryDates;
+            $scope.dates = $scope.jsondata.records.expiryDates;
             $scope.selectedName = $scope.dates[0];
-            $scope.bniftydata = jsondata.filtered.data.sort((a, b) => {
+            $scope.bniftydata = $scope.jsondata.filtered.data.sort((a, b) => {
                 return b.strikePrice - a.strikePrice;
             });
             $scope.updatedbniftydata = [];
