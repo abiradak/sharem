@@ -32,9 +32,8 @@
 <body>
     <div id="tableExample">
         <div ng-controller="pageController">
-            <select ng-model="selectedName" ng-options="x for x in dates">
-            </select>
-            <table ng-if = "updatedbniftydata" datatable options="dataTableOptions" items="updatedbniftydata"></table>
+            <select ng-model="selectedName" ng-options="x for x in dates"></select>
+            <table datatable options="dataTableOptions" items="updatedbniftydata"></table>
         </div>
     </div>
 </body>
