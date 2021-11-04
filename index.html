@@ -84,12 +84,11 @@
                     return b.strikePrice - a.strikePrice;
                 });
                 $scope.updatedbniftydata = [];
-                console.log('ahbdabhdbha', $scope.bniftydata);
                 // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
-                var ud = 39400;
-                var position = $scope.bniftydata.findIndex(items => items.strikePrice === ud);
+                $scope.ud = 39400;
+                $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
                 $scope.bniftydata.map((item, key) => {
-                    for (i = position - 10; i <= position + 10; i++) {
+                    for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
                         if (key === i) {
                             $scope.updatedbniftydata.push(item);
                         }
