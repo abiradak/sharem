@@ -32,7 +32,7 @@
 <body>
     <div id="tableExample">
         <div ng-controller="pageController">
-            <select ng-model="selectedName" ng-options="x for x in names" ng-change="selectRow(x)">
+            <select ng-model="selectedName" ng-options="x for x in dates" ng-change="selectRow(x)">
             </select>
             <table datatable options="dataTableOptions" items="updatedbniftydata"></table>
         </div>
@@ -73,7 +73,6 @@
     });
 
     app.controller('pageController', function ($scope) {
-        $scope.names = ["Emil", "Tobias", "Linus"];
         $.get(
             "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
         ).done((data) => {
@@ -85,6 +84,7 @@
                     return b.strikePrice - a.strikePrice;
                 });
                 $scope.updatedbniftydata = [];
+                console.log('ahbdabhdbha', $scope.bniftydata);
                 // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
                 var ud = 39400;
                 var position = $scope.bniftydata.findIndex(items => items.strikePrice === ud);
