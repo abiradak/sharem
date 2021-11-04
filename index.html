@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Share M</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"
         integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA=="
@@ -32,13 +32,14 @@
 <body>
     <div id="tableExample">
         <div ng-controller="pageController">
-            <select ng-model="selectedName" ng-options="x for x in dates" ng-change="selectRow(x)">
+            <select ng-model="selectedName" ng-options="x for x in dates">
             </select>
             <table datatable options="dataTableOptions" items="updatedbniftydata"></table>
         </div>
     </div>
 </body>
 <script>
+    
     var app = angular.module('tableExample', []);
     // console.clear();
     app.directive('datatable', function () {
@@ -50,7 +51,6 @@
                     return data.map(scope.options.columnMap)
                 }
                 scope.$watch('items', function (newData) {
-                    console.log("new items:", scope.options);
                     if (newData) {
                         dataTable.fnClearTable();
                         dataTable.fnAddData(mapToDatatableFormat(newData))
@@ -75,12 +75,12 @@
     app.controller('pageController', function ($scope) {
         $.get(
             "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
-        ).done((data) => {
-            console.log('>>>>>>>', data.records);
-            // $scope.records = data.records.data;
-            if (data) {
-                $scope.dates = data.records.expiryDates;
-                $scope.bniftydata = data.filtered.data.sort((a, b) => {
+        ).done((jsondata) => {
+            console.log('>>>>>>>', jsondata.records);
+            $scope.records = jsondata.records.data;
+            if (jsondata) {
+                $scope.dates = jsondata.records.expiryDates;
+                $scope.bniftydata = jsondata.filtered.data.sort((a, b) => {
                     return b.strikePrice - a.strikePrice;
                 });
                 $scope.updatedbniftydata = [];
@@ -97,12 +97,29 @@
             }
         });
 
-
+        // if (jsondata) {
+        //     $scope.dates = jsondata.records.expiryDates;
+        //     $scope.selectedName = $scope.dates[0];
+        //     $scope.bniftydata = jsondata.filtered.data.sort((a, b) => {
+        //         return b.strikePrice - a.strikePrice;
+        //     });
+        //     $scope.updatedbniftydata = [];
+        //     // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
+        //     $scope.ud = 39400;
+        //     $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
+        //     $scope.bniftydata.map((item, key) => {
+        //         for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
+        //             if (key === i) {
+        //                 $scope.updatedbniftydata.push(item);
+        //             }
+        //         }
+        //     });
+        // }
         // $scope.updatedbniftydata.sort((a, b) => {
         //     return b.strikePrice - a.strikePrice;
         // });
-        
-        
+
+
         $scope.selections = function () {
             return $scope.updatedbniftydata.filter(function (contact) {
                 return contact.selected;
@@ -163,11 +180,11 @@
                 aTargets: [0, 1]
             }],
             rowCallback: function (row, data, index) {
-                if (data[0] == ud) {
+                if (data[0] == $scope.ud) {
                     $(row).addClass('red');
                 }
             },
-            select: { 
+            select: {
                 style: 'multi',
                 selector: 'td:first-child'
             },
@@ -180,7 +197,7 @@
         var bootElement = document.getElementById("tableExample");
         angular.bootstrap(bootElement, ['tableExample']);
     });
-    
+
 
 </script>
 
