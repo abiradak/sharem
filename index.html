@@ -77,44 +77,45 @@
             "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
         ).done((jsondata) => {
             console.log('>>>>>>>', jsondata.records);
-            $scope.records = jsondata.records.data;
-            if (jsondata) {
-                $scope.dates = jsondata.records.expiryDates;
-                $scope.bniftydata = jsondata.filtered.data.sort((a, b) => {
-                    return b.strikePrice - a.strikePrice;
-                });
-                $scope.updatedbniftydata = [];
-                // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
-                $scope.ud = 39400;
-                $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
-                $scope.bniftydata.map((item, key) => {
-                    for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
-                        if (key === i) {
-                            $scope.updatedbniftydata.push(item);
-                        }
-                    }
-                });
-            }
+            $scope.jsondata = jsondata;
+            // $scope.records = jsondata.records.data;
+            // if (jsondata) {
+            //     $scope.dates = jsondata.records.expiryDates;
+            //     $scope.bniftydata = jsondata.filtered.data.sort((a, b) => {
+            //         return b.strikePrice - a.strikePrice;
+            //     });
+            //     $scope.updatedbniftydata = [];
+            //     // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
+            //     $scope.ud = 39400;
+            //     $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
+            //     $scope.bniftydata.map((item, key) => {
+            //         for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
+            //             if (key === i) {
+            //                 $scope.updatedbniftydata.push(item);
+            //             }
+            //         }
+            //     });
+            // }
         });
 
-        // if (jsondata) {
-        //     $scope.dates = jsondata.records.expiryDates;
-        //     $scope.selectedName = $scope.dates[0];
-        //     $scope.bniftydata = jsondata.filtered.data.sort((a, b) => {
-        //         return b.strikePrice - a.strikePrice;
-        //     });
-        //     $scope.updatedbniftydata = [];
-        //     // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
-        //     $scope.ud = 39400;
-        //     $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
-        //     $scope.bniftydata.map((item, key) => {
-        //         for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
-        //             if (key === i) {
-        //                 $scope.updatedbniftydata.push(item);
-        //             }
-        //         }
-        //     });
-        // }
+        if ($scope.jsondata) {
+            $scope.dates = jsondata.records.expiryDates;
+            $scope.selectedName = $scope.dates[0];
+            $scope.bniftydata = jsondata.filtered.data.sort((a, b) => {
+                return b.strikePrice - a.strikePrice;
+            });
+            $scope.updatedbniftydata = [];
+            // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
+            $scope.ud = 39400;
+            $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
+            $scope.bniftydata.map((item, key) => {
+                for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
+                    if (key === i) {
+                        $scope.updatedbniftydata.push(item);
+                    }
+                }
+            });
+        }
         // $scope.updatedbniftydata.sort((a, b) => {
         //     return b.strikePrice - a.strikePrice;
         // });
