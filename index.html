@@ -38,12 +38,6 @@
     </div>
 </body>
 <script>
-    $.get(
-        "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
-    ).done((jsondata) => {
-        console.log('>>>>>>>', jsondata.records);
-        $scope.jsondata = jsondata;
-    });
     var app = angular.module('tableExample', []);
     // console.clear();
     app.directive('datatable', function () {
@@ -77,6 +71,12 @@
     });
 
     app.controller('pageController', function ($scope) {
+        $.get(
+            "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
+        ).done((jsondata) => {
+            console.log('>>>>>>>', jsondata.records);
+            $scope.jsondata = jsondata;
+        });
         if ($scope.jsondata) {
             $scope.dates = $scope.jsondata.records.expiryDates;
             $scope.selectedName = $scope.dates[0];
@@ -94,9 +94,9 @@
                     }
                 }
             });
+            console.log('###### 1st', $scope.bniftydata);
+            console.log('###### 2nd', $scope.updatedbniftydata);
         }
-        console.log('###### 1st',  $scope.bniftydata);
-        console.log('###### 2nd', $scope.updatedbniftydata);
         // $scope.updatedbniftydata.sort((a, b) => {
         //     return b.strikePrice - a.strikePrice;
         // });
