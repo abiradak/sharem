@@ -40,25 +40,25 @@
 <script>
     var app = angular.module('tableExample', []);
     // console.clear();
-    app.directive('datatable', function () {
+    app.directive('datatable', () => {
         return {
             restrict: 'E, A, C',
-            link: function (scope, element, attrs, controller) {
+            link: (scope, element, attrs, controller) => {
                 var dataTable = element.dataTable(scope.options);
-                var mapToDatatableFormat = function (data) {
+                var mapToDatatableFormat = (data) => {
                     return data.map(scope.options.columnMap)
                 }
-                scope.$watch('items', function (newData) {
+                scope.$watch('items', (newData) => {
                     if (newData) {
                         dataTable.fnClearTable();
                         dataTable.fnAddData(mapToDatatableFormat(newData))
                     }
                 }, true);
 
-                dataTable.on('select', function (e, dt, type, indexes) {
+                dataTable.on('select', (e, dt, type, indexes) => {
                     var rowData = table.rows(indexes).data().toArray();
                 });
-                dataTable.on('deselect', function (e, dt, type, indexes) {
+                dataTable.on('deselect', (e, dt, type, indexes) => {
                     var rowData = table.rows(indexes).data().toArray();
                 });
 
@@ -70,7 +70,7 @@
         };
     });
 
-    app.controller('pageController', function ($scope) {
+    app.controller('pageController', ($scope) => {
         $.get(
             "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
         ).done((jsondata) => {
@@ -95,10 +95,11 @@
                 });
                 console.log('###### 1st', $scope.bniftydata);
                 console.log('###### 2nd', $scope.updatedbniftydata);
+                $scope.apply();
             }
         });
-        $scope.selections = function () {
-            return $scope.updatedbniftydata.filter(function (contact) {
+        $scope.selections =  () => {
+            return $scope.updatedbniftydata.filter((contact) => {
                 return contact.selected;
             })
         }
@@ -125,7 +126,7 @@
                 { title: "PUT BUY" },
                 { title: "PUT SELL" }
             ],
-            columnMap: function (p) {
+            columnMap:  (p) => {
                 return [
                     p.strikePrice,
                     p.CE && p.CE.openInterest ? p.CE.openInterest : '-',
@@ -156,7 +157,7 @@
                 pageLength: 21,
                 aTargets: [0, 1]
             }],
-            rowCallback: function (row, data, index) {
+            rowCallback: (row, data, index) => {
                 if (data[0] == $scope.ud) {
                     $(row).addClass('red');
                 }
@@ -170,7 +171,7 @@
         };
     });
 
-    angular.element(document).ready(function () {
+    angular.element(document).ready( () => {
         var bootElement = document.getElementById("tableExample");
         angular.bootstrap(bootElement, ['tableExample']);
     });
