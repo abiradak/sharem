@@ -45,9 +45,6 @@
             restrict: 'E, A, C',
             link: (scope, element, attrs, controller) => {
                 var dataTable = element.dataTable(scope.options);
-                var mapToDatatableFormat = (data) => {
-                    return data.map(scope.options.columnMap)
-                }
                 scope.$watch('items', (newData) => {
                     if (newData) {
                         dataTable.fnClearTable();
@@ -93,9 +90,11 @@
                         }
                     }
                 });
+                var mapToDatatableFormat = (data) => {
+                    return data.map(scope.options.columnMap)
+                }
                 console.log('###### 1st', $scope.bniftydata);
                 console.log('###### 2nd', $scope.updatedbniftydata);
-                $scope.apply();
             }
         });
         $scope.selections =  () => {
@@ -127,6 +126,7 @@
                 { title: "PUT SELL" }
             ],
             columnMap:  (p) => {
+
                 return [
                     p.strikePrice,
                     p.CE && p.CE.openInterest ? p.CE.openInterest : '-',
