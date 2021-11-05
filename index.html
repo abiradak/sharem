@@ -95,84 +95,79 @@
                 });
                 console.log('###### 1st', $scope.bniftydata);
                 console.log('###### 2nd', $scope.updatedbniftydata);
-
-                $scope.selections = function () {
-                    return $scope.updatedbniftydata.filter(function (contact) {
-                        return contact.selected;
-                    })
-                }
-
-                $scope.dataTableOptions = {
-                    columns: [
-                        { title: "Strike" },
-                        { title: "Previus Call OI" },
-                        { title: "Previus put OI" },
-                        { title: "Call OI %" },
-                        { title: "PUT OI %" },
-                        { title: "Call OI" },
-                        { title: "PUT OI" },
-                        { title: "CALL VOLUME" },
-                        { title: "PUT VOLUME" },
-                        { title: "CALL PRICE" },
-                        { title: "PUT PRICE" },
-                        { title: "CALL IV" },
-                        { title: "PUT IV" },
-                        { title: "CALL PRICE CHANGE %" },
-                        { title: "PUT PRICE CHANGE %" },
-                        { title: "CALL BUY" },
-                        { title: "CALL SELL" },
-                        { title: "PUT BUY" },
-                        { title: "PUT SELL" }
-                    ],
-                    columnMap: function (p) {
-                        return [
-                            p.strikePrice,
-                            p.CE && p.CE.openInterest ? p.CE.openInterest : '-',
-                            p.PE && p.PE.openInterest ? p.PE.openInterest : '-',
-                            p.CE && p.CE.pchangeinOpenInterest ? p.CE.pchangeinOpenInterest.toFixed(2) : '-',
-                            p.PE && p.PE.pchangeinOpenInterest ? p.PE.pchangeinOpenInterest.toFixed(2) : '-',
-                            p.CE && p.CE.changeinOpenInterest ? p.CE.changeinOpenInterest : '-',
-                            p.PE && p.PE.changeinOpenInterest ? p.PE.changeinOpenInterest : '-',
-                            p.CE && p.CE.totalTradedVolume ? p.CE.totalTradedVolume : '-',
-                            p.PE && p.PE.totalTradedVolume ? p.PE.totalTradedVolume : '-',
-                            p.CE && p.CE.lastPrice ? p.CE.lastPrice : '-',
-                            p.PE && p.PE.lastPrice ? p.PE.lastPrice : '-',
-                            p.CE && p.CE.impliedVolatility ? p.CE.impliedVolatility : '-',
-                            p.PE && p.PE.impliedVolatility ? p.PE.impliedVolatility : '-',
-                            p.CE && p.CE.pChange ? p.CE.pChange.toFixed(2) : '-',
-                            p.PE && p.PE.pChange ? p.PE.pChange.toFixed(2) : '-',
-                            p.CE && p.CE.totalBuyQuantity ? p.CE.totalBuyQuantity : '-',
-                            p.CE && p.CE.totalBuyQuantity ? p.CE.totalBuyQuantity : '-',
-                            p.PE && p.PE.totalSellQuantity ? p.PE.totalSellQuantity : '-',
-                            p.PE && p.PE.totalSellQuantity ? p.PE.totalSellQuantity : '-',
-                        ]
-                    },
-                    columnDefs: [{
-                        orderable: true,
-                        className: 'select-checkbox',
-                        targets: 0,
-                        sortable: true,
-                        pageLength: 21,
-                        aTargets: [0, 1]
-                    }],
-                    rowCallback: function (row, data, index) {
-                        if (data[0] == $scope.ud) {
-                            $(row).addClass('red');
-                        }
-                    },
-                    select: {
-                        style: 'multi',
-                        selector: 'td:first-child'
-                    },
-                    order: [[0, 'desc']],
-                    lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]]
-                };
             }
         });
+        $scope.selections = function () {
+            return $scope.updatedbniftydata.filter(function (contact) {
+                return contact.selected;
+            })
+        }
 
-        // $scope.updatedbniftydata.sort((a, b) => {
-        //     return b.strikePrice - a.strikePrice;
-        // });
+        $scope.dataTableOptions = {
+            columns: [
+                { title: "Strike" },
+                { title: "Previus Call OI" },
+                { title: "Previus put OI" },
+                { title: "Call OI %" },
+                { title: "PUT OI %" },
+                { title: "Call OI" },
+                { title: "PUT OI" },
+                { title: "CALL VOLUME" },
+                { title: "PUT VOLUME" },
+                { title: "CALL PRICE" },
+                { title: "PUT PRICE" },
+                { title: "CALL IV" },
+                { title: "PUT IV" },
+                { title: "CALL PRICE CHANGE %" },
+                { title: "PUT PRICE CHANGE %" },
+                { title: "CALL BUY" },
+                { title: "CALL SELL" },
+                { title: "PUT BUY" },
+                { title: "PUT SELL" }
+            ],
+            columnMap: function (p) {
+                return [
+                    p.strikePrice,
+                    p.CE && p.CE.openInterest ? p.CE.openInterest : '-',
+                    p.PE && p.PE.openInterest ? p.PE.openInterest : '-',
+                    p.CE && p.CE.pchangeinOpenInterest ? p.CE.pchangeinOpenInterest.toFixed(2) : '-',
+                    p.PE && p.PE.pchangeinOpenInterest ? p.PE.pchangeinOpenInterest.toFixed(2) : '-',
+                    p.CE && p.CE.changeinOpenInterest ? p.CE.changeinOpenInterest : '-',
+                    p.PE && p.PE.changeinOpenInterest ? p.PE.changeinOpenInterest : '-',
+                    p.CE && p.CE.totalTradedVolume ? p.CE.totalTradedVolume : '-',
+                    p.PE && p.PE.totalTradedVolume ? p.PE.totalTradedVolume : '-',
+                    p.CE && p.CE.lastPrice ? p.CE.lastPrice : '-',
+                    p.PE && p.PE.lastPrice ? p.PE.lastPrice : '-',
+                    p.CE && p.CE.impliedVolatility ? p.CE.impliedVolatility : '-',
+                    p.PE && p.PE.impliedVolatility ? p.PE.impliedVolatility : '-',
+                    p.CE && p.CE.pChange ? p.CE.pChange.toFixed(2) : '-',
+                    p.PE && p.PE.pChange ? p.PE.pChange.toFixed(2) : '-',
+                    p.CE && p.CE.totalBuyQuantity ? p.CE.totalBuyQuantity : '-',
+                    p.CE && p.CE.totalBuyQuantity ? p.CE.totalBuyQuantity : '-',
+                    p.PE && p.PE.totalSellQuantity ? p.PE.totalSellQuantity : '-',
+                    p.PE && p.PE.totalSellQuantity ? p.PE.totalSellQuantity : '-',
+                ]
+            },
+            columnDefs: [{
+                orderable: true,
+                className: 'select-checkbox',
+                targets: 0,
+                sortable: true,
+                pageLength: 21,
+                aTargets: [0, 1]
+            }],
+            rowCallback: function (row, data, index) {
+                if (data[0] == $scope.ud) {
+                    $(row).addClass('red');
+                }
+            },
+            select: {
+                style: 'multi',
+                selector: 'td:first-child'
+            },
+            order: [[0, 'desc']],
+            lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]]
+        };
     });
 
     angular.element(document).ready(function () {
