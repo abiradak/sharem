@@ -38,6 +38,39 @@
     </div>
 </body>
 <script>
+    // $.get(
+    //     "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
+    // ).done((jsondata) => {
+    //     console.log('>>>>>>>', jsondata.records);
+    //     $scope.jsondata = jsondata;
+    //     if ($scope.jsondata) {
+    //         $scope.dates = $scope.jsondata.records.expiryDates;
+    //         $scope.selectedName = $scope.dates[0];
+    //         $scope.bniftydata = $scope.jsondata.filtered.data.sort((a, b) => {
+    //             return b.strikePrice - a.strikePrice;
+    //         });
+    //         $scope.updatedbniftydata = [];
+    //         // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
+    //         $scope.ud = 39400;
+    //         $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
+    //         $scope.bniftydata.map((item, key) => {
+    //             for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
+    //                 if (key === i) {
+    //                     $scope.updatedbniftydata.push(item);
+    //                 }
+    //             }
+    //         });
+    //         console.log('###### 1st', $scope.bniftydata);
+    //         console.log('###### 2nd', $scope.updatedbniftydata);
+    //     }
+    // });
+
+    $.get(
+        "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
+    ).done((jsondata) => {
+        console.log('>>>>>>>', jsondata.records);
+        var fulljsondata = jsondata;
+    });
     var app = angular.module('tableExample', []);
     // console.clear();
     app.directive('datatable', () => {
@@ -45,6 +78,9 @@
             restrict: 'E, A, C',
             link: (scope, element, attrs, controller) => {
                 var dataTable = element.dataTable(scope.options);
+                var mapToDatatableFormat = (data) => {
+                    return data.map(scope.options.columnMap)
+                }
                 scope.$watch('items', (newData) => {
                     if (newData) {
                         dataTable.fnClearTable();
@@ -68,41 +104,31 @@
     });
 
     app.controller('pageController', ($scope) => {
-        $.get(
-            "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
-        ).done((jsondata) => {
-            console.log('>>>>>>>', jsondata.records);
-            $scope.jsondata = jsondata;
-            if ($scope.jsondata) {
-                $scope.dates = $scope.jsondata.records.expiryDates;
-                $scope.selectedName = $scope.dates[0];
-                $scope.bniftydata = $scope.jsondata.filtered.data.sort((a, b) => {
-                    return b.strikePrice - a.strikePrice;
-                });
-                $scope.updatedbniftydata = [];
-                // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
-                $scope.ud = 39400;
-                $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
-                $scope.bniftydata.map((item, key) => {
-                    for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
-                        if (key === i) {
-                            $scope.updatedbniftydata.push(item);
-                        }
-                    }
-                });
-                var mapToDatatableFormat = (data) => {
-                    return data.map(scope.options.columnMap)
-                }
-                console.log('###### 1st', $scope.bniftydata);
-                console.log('###### 2nd', $scope.updatedbniftydata);
-            }
-        });
-        $scope.selections =  () => {
+        $scope.selections = () => {
             return $scope.updatedbniftydata.filter((contact) => {
                 return contact.selected;
             })
         }
-
+        if (fulljsondata) {
+            $scope.dates = fulljsondata.records.expiryDates;
+            $scope.selectedName = $scope.dates[0];
+            $scope.bniftydata = fulljsondata.filtered.data.sort((a, b) => {
+                return b.strikePrice - a.strikePrice;
+            });
+            $scope.updatedbniftydata = [];
+            // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
+            $scope.ud = 39400;
+            $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
+            $scope.bniftydata.map((item, key) => {
+                for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
+                    if (key === i) {
+                        $scope.updatedbniftydata.push(item);
+                    }
+                }
+            });
+            console.log('###### 1st', $scope.bniftydata);
+            console.log('###### 2nd', $scope.updatedbniftydata);
+        }
         $scope.dataTableOptions = {
             columns: [
                 { title: "Strike" },
@@ -125,8 +151,8 @@
                 { title: "PUT BUY" },
                 { title: "PUT SELL" }
             ],
-            columnMap:  (p) => {
-
+            columnMap: (p) => {
+                console.log('-----', p);
                 return [
                     p.strikePrice,
                     p.CE && p.CE.openInterest ? p.CE.openInterest : '-',
@@ -171,7 +197,7 @@
         };
     });
 
-    angular.element(document).ready( () => {
+    angular.element(document).ready(() => {
         var bootElement = document.getElementById("tableExample");
         angular.bootstrap(bootElement, ['tableExample']);
     });
