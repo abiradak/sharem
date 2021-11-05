@@ -64,12 +64,12 @@
     //         console.log('###### 2nd', $scope.updatedbniftydata);
     //     }
     // });
-
+    var fulljsondata;    
     $.get(
         "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
     ).done((jsondata) => {
         console.log('>>>>>>>', jsondata.records);
-        var fulljsondata = jsondata;
+        fulljsondata = jsondata;
     });
     var app = angular.module('tableExample', []);
     // console.clear();
