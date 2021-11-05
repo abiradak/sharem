@@ -65,146 +65,158 @@
     //     }
     // });
     var fulljsondata;
-    $.get(
-        "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
-    ).done((jsondata) => {
-        console.log('>>>>>>>', jsondata.records);
-        fulljsondata = jsondata;
+    // $.get(
+    //     "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
+    // ).done((jsondata) => {
+    //     console.log('>>>>>>>', jsondata.records);
+    //     fulljsondata = jsondata;
 
-        var app = angular.module('tableExample', []);
-        // console.clear();
-        app.directive('datatable', () => {
-            return {
-                restrict: 'E, A, C',
-                link: (scope, element, attrs, controller) => {
-                    var dataTable = element.dataTable(scope.options);
-                    var mapToDatatableFormat = (data) => {
-                        return data.map(scope.options.columnMap)
-                    }
-                    scope.$watch('items', (newData) => {
-                        if (newData) {
-                            dataTable.fnClearTable();
-                            dataTable.fnAddData(mapToDatatableFormat(newData))
-                        }
-                    }, true);
+    //     var app = angular.module('tableExample', []);
+    //     // console.clear();
+    //     app.directive('datatable', () => {
+    //         return {
+    //             restrict: 'E, A, C',
+    //             link: (scope, element, attrs, controller) => {
+    //                 var dataTable = element.dataTable(scope.options);
+    //                 var mapToDatatableFormat = (data) => {
+    //                     return data.map(scope.options.columnMap)
+    //                 }
+    //                 scope.$watch('items', (newData) => {
+    //                     if (newData) {
+    //                         dataTable.fnClearTable();
+    //                         dataTable.fnAddData(mapToDatatableFormat(newData))
+    //                     }
+    //                 }, true);
 
-                    dataTable.on('select', (e, dt, type, indexes) => {
-                        var rowData = table.rows(indexes).data().toArray();
-                    });
-                    dataTable.on('deselect', (e, dt, type, indexes) => {
-                        var rowData = table.rows(indexes).data().toArray();
-                    });
+    //                 dataTable.on('select', (e, dt, type, indexes) => {
+    //                     var rowData = table.rows(indexes).data().toArray();
+    //                 });
+    //                 dataTable.on('deselect', (e, dt, type, indexes) => {
+    //                     var rowData = table.rows(indexes).data().toArray();
+    //                 });
 
-                },
-                scope: {
-                    options: "=",
-                    items: "="
-                }
-            };
-        });
+    //             },
+    //             scope: {
+    //                 options: "=",
+    //                 items: "="
+    //             }
+    //         };
+    //     });
 
-        app.controller('pageController', ($scope) => {
-            $scope.selections = () => {
-                return $scope.updatedbniftydata.filter((contact) => {
-                    return contact.selected;
-                })
-            }
-            if (fulljsondata) {
-                $scope.dates = fulljsondata.records.expiryDates;
-                $scope.selectedName = $scope.dates[0];
-                $scope.bniftydata = fulljsondata.filtered.data.sort((a, b) => {
-                    return b.strikePrice - a.strikePrice;
-                });
-                $scope.updatedbniftydata = [];
-                // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
-                $scope.ud = 39400;
-                $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
-                $scope.bniftydata.map((item, key) => {
-                    for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
-                        if (key === i) {
-                            $scope.updatedbniftydata.push(item);
-                        }
-                    }
-                });
-                console.log('###### 1st', $scope.bniftydata);
-                console.log('###### 2nd', $scope.updatedbniftydata);
-            }
-            $scope.dataTableOptions = {
-                columns: [
-                    { title: "Strike" },
-                    { title: "Previus Call OI" },
-                    { title: "Previus put OI" },
-                    { title: "Call OI %" },
-                    { title: "PUT OI %" },
-                    { title: "Call OI" },
-                    { title: "PUT OI" },
-                    { title: "CALL VOLUME" },
-                    { title: "PUT VOLUME" },
-                    { title: "CALL PRICE" },
-                    { title: "PUT PRICE" },
-                    { title: "CALL IV" },
-                    { title: "PUT IV" },
-                    { title: "CALL PRICE CHANGE %" },
-                    { title: "PUT PRICE CHANGE %" },
-                    { title: "CALL BUY" },
-                    { title: "CALL SELL" },
-                    { title: "PUT BUY" },
-                    { title: "PUT SELL" }
-                ],
-                columnMap: (p) => {
-                    console.log('-----', p);
-                    return [
-                        p.strikePrice,
-                        p.CE && p.CE.openInterest ? p.CE.openInterest : '-',
-                        p.PE && p.PE.openInterest ? p.PE.openInterest : '-',
-                        p.CE && p.CE.pchangeinOpenInterest ? p.CE.pchangeinOpenInterest.toFixed(2) : '-',
-                        p.PE && p.PE.pchangeinOpenInterest ? p.PE.pchangeinOpenInterest.toFixed(2) : '-',
-                        p.CE && p.CE.changeinOpenInterest ? p.CE.changeinOpenInterest : '-',
-                        p.PE && p.PE.changeinOpenInterest ? p.PE.changeinOpenInterest : '-',
-                        p.CE && p.CE.totalTradedVolume ? p.CE.totalTradedVolume : '-',
-                        p.PE && p.PE.totalTradedVolume ? p.PE.totalTradedVolume : '-',
-                        p.CE && p.CE.lastPrice ? p.CE.lastPrice : '-',
-                        p.PE && p.PE.lastPrice ? p.PE.lastPrice : '-',
-                        p.CE && p.CE.impliedVolatility ? p.CE.impliedVolatility : '-',
-                        p.PE && p.PE.impliedVolatility ? p.PE.impliedVolatility : '-',
-                        p.CE && p.CE.pChange ? p.CE.pChange.toFixed(2) : '-',
-                        p.PE && p.PE.pChange ? p.PE.pChange.toFixed(2) : '-',
-                        p.CE && p.CE.totalBuyQuantity ? p.CE.totalBuyQuantity : '-',
-                        p.CE && p.CE.totalBuyQuantity ? p.CE.totalBuyQuantity : '-',
-                        p.PE && p.PE.totalSellQuantity ? p.PE.totalSellQuantity : '-',
-                        p.PE && p.PE.totalSellQuantity ? p.PE.totalSellQuantity : '-',
-                    ]
-                },
-                columnDefs: [{
-                    orderable: true,
-                    className: 'select-checkbox',
-                    targets: 0,
-                    sortable: true,
-                    pageLength: 21,
-                    aTargets: [0, 1]
-                }],
-                rowCallback: (row, data, index) => {
-                    if (data[0] == $scope.ud) {
-                        $(row).addClass('red');
-                    }
-                },
-                select: {
-                    style: 'multi',
-                    selector: 'td:first-child'
-                },
-                order: [[0, 'desc']],
-                lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]]
-            };
-        });
+    //     app.controller('pageController', ($scope) => {
+    //         $scope.selections = () => {
+    //             return $scope.updatedbniftydata.filter((contact) => {
+    //                 return contact.selected;
+    //             })
+    //         }
+    //         if (fulljsondata) {
+    //             $scope.dates = fulljsondata.records.expiryDates;
+    //             $scope.selectedName = $scope.dates[0];
+    //             $scope.bniftydata = fulljsondata.filtered.data.sort((a, b) => {
+    //                 return b.strikePrice - a.strikePrice;
+    //             });
+    //             $scope.updatedbniftydata = [];
+    //             // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
+    //             $scope.ud = 39400;
+    //             $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
+    //             $scope.bniftydata.map((item, key) => {
+    //                 for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
+    //                     if (key === i) {
+    //                         $scope.updatedbniftydata.push(item);
+    //                     }
+    //                 }
+    //             });
+    //             console.log('###### 1st', $scope.bniftydata);
+    //             console.log('###### 2nd', $scope.updatedbniftydata);
+    //         }
+    //         $scope.dataTableOptions = {
+    //             columns: [
+    //                 { title: "Strike" },
+    //                 { title: "Previus Call OI" },
+    //                 { title: "Previus put OI" },
+    //                 { title: "Call OI %" },
+    //                 { title: "PUT OI %" },
+    //                 { title: "Call OI" },
+    //                 { title: "PUT OI" },
+    //                 { title: "CALL VOLUME" },
+    //                 { title: "PUT VOLUME" },
+    //                 { title: "CALL PRICE" },
+    //                 { title: "PUT PRICE" },
+    //                 { title: "CALL IV" },
+    //                 { title: "PUT IV" },
+    //                 { title: "CALL PRICE CHANGE %" },
+    //                 { title: "PUT PRICE CHANGE %" },
+    //                 { title: "CALL BUY" },
+    //                 { title: "CALL SELL" },
+    //                 { title: "PUT BUY" },
+    //                 { title: "PUT SELL" }
+    //             ],
+    //             columnMap: (p) => {
+    //                 console.log('-----', p);
+    //                 return [
+    //                     p.strikePrice,
+    //                     p.CE && p.CE.openInterest ? p.CE.openInterest : '-',
+    //                     p.PE && p.PE.openInterest ? p.PE.openInterest : '-',
+    //                     p.CE && p.CE.pchangeinOpenInterest ? p.CE.pchangeinOpenInterest.toFixed(2) : '-',
+    //                     p.PE && p.PE.pchangeinOpenInterest ? p.PE.pchangeinOpenInterest.toFixed(2) : '-',
+    //                     p.CE && p.CE.changeinOpenInterest ? p.CE.changeinOpenInterest : '-',
+    //                     p.PE && p.PE.changeinOpenInterest ? p.PE.changeinOpenInterest : '-',
+    //                     p.CE && p.CE.totalTradedVolume ? p.CE.totalTradedVolume : '-',
+    //                     p.PE && p.PE.totalTradedVolume ? p.PE.totalTradedVolume : '-',
+    //                     p.CE && p.CE.lastPrice ? p.CE.lastPrice : '-',
+    //                     p.PE && p.PE.lastPrice ? p.PE.lastPrice : '-',
+    //                     p.CE && p.CE.impliedVolatility ? p.CE.impliedVolatility : '-',
+    //                     p.PE && p.PE.impliedVolatility ? p.PE.impliedVolatility : '-',
+    //                     p.CE && p.CE.pChange ? p.CE.pChange.toFixed(2) : '-',
+    //                     p.PE && p.PE.pChange ? p.PE.pChange.toFixed(2) : '-',
+    //                     p.CE && p.CE.totalBuyQuantity ? p.CE.totalBuyQuantity : '-',
+    //                     p.CE && p.CE.totalBuyQuantity ? p.CE.totalBuyQuantity : '-',
+    //                     p.PE && p.PE.totalSellQuantity ? p.PE.totalSellQuantity : '-',
+    //                     p.PE && p.PE.totalSellQuantity ? p.PE.totalSellQuantity : '-',
+    //                 ]
+    //             },
+    //             columnDefs: [{
+    //                 orderable: true,
+    //                 className: 'select-checkbox',
+    //                 targets: 0,
+    //                 sortable: true,
+    //                 pageLength: 21,
+    //                 aTargets: [0, 1]
+    //             }],
+    //             rowCallback: (row, data, index) => {
+    //                 if (data[0] == $scope.ud) {
+    //                     $(row).addClass('red');
+    //                 }
+    //             },
+    //             select: {
+    //                 style: 'multi',
+    //                 selector: 'td:first-child'
+    //             },
+    //             order: [[0, 'desc']],
+    //             lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]]
+    //         };
+    //     });
 
-        angular.element(document).ready(() => {
-            var bootElement = document.getElementById("tableExample");
-            angular.bootstrap(bootElement, ['tableExample']);
-        });
+    //     angular.element(document).ready(() => {
+    //         var bootElement = document.getElementById("tableExample");
+    //         angular.bootstrap(bootElement, ['tableExample']);
+    //     });
+    // });
+
+    $.ajax({
+        url: "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
+        type: "GET",
+        beforeSend:  (xhr) => { 
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('Origin', '*');
+            xhr.setRequestHeader('Access-Control-Allow-Headers', '*');
+            xhr.setRequestHeader('Access-Control-Allow-Origin', '*'); 
+        },
+        success: (resp) => { 
+            console.log('resp',resp);
+        }
     });
-
-
-
 </script>
 
 </html>
