@@ -32,45 +32,17 @@
 <body>
     <div id="tableExample">
         <div ng-controller="pageController">
-            <select ng-model="selectedName" ng-options="x for x in dates"></select>
+            <select ng-change="SelectedRow(selectedName)" ng-model="selectedName" ng-options="x for x in dates"></select>
             <table datatable options="dataTableOptions" items="updatedbniftydata"></table>
         </div>
     </div>
 </body>
 <script>
-    // $.get(
-    //     "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
-    // ).done((jsondata) => {
-    //     console.log('>>>>>>>', jsondata.records);
-    //     $scope.jsondata = jsondata;
-    //     if ($scope.jsondata) {
-    //         $scope.dates = $scope.jsondata.records.expiryDates;
-    //         $scope.selectedName = $scope.dates[0];
-    //         $scope.bniftydata = $scope.jsondata.filtered.data.sort((a, b) => {
-    //             return b.strikePrice - a.strikePrice;
-    //         });
-    //         $scope.updatedbniftydata = [];
-    //         // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
-    //         $scope.ud = 39400;
-    //         $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
-    //         $scope.bniftydata.map((item, key) => {
-    //             for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
-    //                 if (key === i) {
-    //                     $scope.updatedbniftydata.push(item);
-    //                 }
-    //             }
-    //         });
-    //         console.log('###### 1st', $scope.bniftydata);
-    //         console.log('###### 2nd', $scope.updatedbniftydata);
-    //     }
-    // });
     var fulljsondata;
     $.get(
         "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY",
     ).done((jsondata) => {
-        console.log('>>>>>>>', jsondata.records);
         fulljsondata = jsondata;
-
         var app = angular.module('tableExample', []);
         // console.clear();
         app.directive('datatable', () => {
@@ -109,6 +81,26 @@
                     return contact.selected;
                 })
             }
+            $scope.SelectedRow = (date) => {
+                $scope.bankniftydata = fulljsondata.records.data.filter( (item) => {
+                    if (item.expiryDate == date) {
+                        return item;
+                    }
+                });
+                $scope.bankniftydata.sort((a, b) => {
+                    return b.strikePrice - a.strikePrice;
+                });
+                $scope.updatedbniftydata = [];
+                $scope.ud = 100 * Math.round($scope.bankniftydata[0].PE.underlyingValue / 100);
+                $scope.position = $scope.bankniftydata.findIndex(items => items.strikePrice === $scope.ud);
+                $scope.bankniftydata.map((item, key) => {
+                    for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
+                        if (key === i) {
+                            $scope.updatedbniftydata.push(item);
+                        }
+                    }
+                });
+            }
             if (fulljsondata) {
                 $scope.dates = fulljsondata.records.expiryDates;
                 $scope.selectedName = $scope.dates[0];
@@ -116,8 +108,7 @@
                     return b.strikePrice - a.strikePrice;
                 });
                 $scope.updatedbniftydata = [];
-                // var ud =  Math.round($scope.bniftydata[0].PE.underlyingValue/5);
-                $scope.ud = 39400;
+                $scope.ud = 100 * Math.round($scope.bniftydata[0].PE.underlyingValue / 100);
                 $scope.position = $scope.bniftydata.findIndex(items => items.strikePrice === $scope.ud);
                 $scope.bniftydata.map((item, key) => {
                     for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
@@ -126,8 +117,6 @@
                         }
                     }
                 });
-                console.log('###### 1st', $scope.bniftydata);
-                console.log('###### 2nd', $scope.updatedbniftydata);
             }
             $scope.dataTableOptions = {
                 columns: [
@@ -152,7 +141,6 @@
                     { title: "PUT SELL" }
                 ],
                 columnMap: (p) => {
-                    console.log('-----', p);
                     return [
                         p.strikePrice,
                         p.CE && p.CE.openInterest ? p.CE.openInterest : '-',
