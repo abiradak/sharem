@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BANKNIFTY</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"
+      integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.js"
+      integrity="sha512-rCVQBDU9Ny0aKLo1/B1MqgRjWEMlCL3WJ0DD6mJeK6qMZqpN9JCRxPtMQWWR9XWCMFIqlSgT4uOdwpvxWTSejw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular-csp.min.css"
+      integrity="sha512-nptw3cPhphu13Dy21CXMS1ceuSy2yxpKswAfZ7bAAE2Lvh8rHXhQFOjU+sSnw4B+mEoQmKFLKOj8lmXKVk3gow=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular-csp.css"
+      integrity="sha512-f7WVHp6iaZ7iOx9duYm67KLwCFJ9KirfMIK0MAOxf1wq5M8Ogdw5ljbCxlk/BtWIbyXWMsIaDaqwUpXttPQ/5g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script
+      src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"
+      type="text/javascript"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css"
+    />
+    <style>
+      .red {
+        background-color: yellow;
+        color: red;
+      }
+      .blue {
+        color: blue;
+      }
+      .green {
+        color: green;
+      }
+      .pink {
+        color: rgb(247, 141, 159);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="tableExample">
+      <div ng-controller="pageController">
+          <div class="row">
+        <div class="col-md-6 m-auto text-center">
+          <div class="d-flex my-3">
+            <input
+              type="number"
+              placeholder="Minute"
+              class="form-control"
+              id="refresh"
+            />
+            <button type="button" class="btn btn-success" onclick="refresh();">
+              On
+            </button>
+          </div>
+
+          <select
+            ng-change="SelectedRow(selectedName)"
+            ng-model="selectedName"
+            ng-options="x for x in dates"
+            class="w-50 m-auto p-2"
+          ></select>
+        </div>
+        <div class="col-md-3">
+            <h3 class="text-info">Page refreshing on <span id="rftime">5</span> minute</h3>
+        </div>
+        </div>
+
+        <table
+          datatable
+          options="dataTableOptions"
+          items="updatedbniftydata"
+        ></table>
+      </div>
+    </div>
+  </body>
+  <script>
+    var firstinterval;
+    var timeout;
+    var app = angular.module("tableExample", []);
+    function banknifty() {
+      var fulljsondata;
+      $.get(
+        "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY"
+      ).done((jsondata) => {
+        fulljsondata = jsondata;
+        app.directive("datatable", () => {
+          return {
+            restrict: "E, A, C",
+            link: (scope, element, attrs, controller) => {
+              var dataTable = element.dataTable(scope.options);
+              var mapToDatatableFormat = (data) => {
+                return data.map(scope.options.columnMap);
+              };
+              scope.$watch(
+                "items",
+                (newData) => {
+                  if (newData) {
+                    dataTable.fnClearTable();
+                    dataTable.fnAddData(mapToDatatableFormat(newData));
+                  }
+                },
+                true
+              );
+
+              dataTable.on("select", (e, dt, type, indexes) => {
+                var rowData = table.rows(indexes).data().toArray();
+              });
+              dataTable.on("deselect", (e, dt, type, indexes) => {
+                var rowData = table.rows(indexes).data().toArray();
+              });
+            },
+            scope: {
+              options: "=",
+              items: "=",
+            },
+          };
+        });
+
+        var highest_call_oi_p = 0; var highest_put_oi_p = 0; var highest_call_oi = 0; var highest_put_oi = 0; 
+        var highest_call_vol = 0; var highest_put_vol = 0; var highest_call_buy = 0; var highest_call_sell = 0;
+        var highest_put_buy = 0; var highest_put_sell = 0;
+
+        app.controller("pageController", ($scope) => {
+          $scope.selections = () => {
+            return $scope.updatedbniftydata.filter((contact) => {
+              return contact.selected;
+            });
+          };
+          $scope.SelectedRow = (date) => {
+            $scope.bankniftydata = fulljsondata.records.data.filter((item) => {
+              if (item.expiryDate == date) {
+                return item;
+              }
+            });
+            $scope.bankniftydata.sort((a, b) => {
+              return b.strikePrice - a.strikePrice;
+            });
+            $scope.updatedbniftydata = [];
+            $scope.ud =
+              100 *
+              Math.round($scope.bankniftydata[0].PE.underlyingValue / 100);
+            $scope.position = $scope.bankniftydata.findIndex(
+              (items) => items.strikePrice === $scope.ud
+            );
+            $scope.bankniftydata.map((item, key) => {
+              for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
+                if (key === i) {
+                  $scope.updatedbniftydata.push(item);
+                }
+              }
+            });
+          };
+          if (fulljsondata) {
+            $scope.dates = fulljsondata.records.expiryDates;
+            $scope.selectedName = $scope.dates[0];
+            $scope.bniftydata = fulljsondata.filtered.data.sort((a, b) => {
+              return b.strikePrice - a.strikePrice;
+            });
+            $scope.updatedbniftydata = [];
+            $scope.ud =
+              100 * Math.round($scope.bniftydata[0].PE.underlyingValue / 100);
+            $scope.position = $scope.bniftydata.findIndex(
+              (items) => items.strikePrice === $scope.ud
+            );
+            $scope.bniftydata.map((item, key) => {
+              for (i = $scope.position - 10; i <= $scope.position + 10; i++) {
+                if (key === i) {
+                  $scope.updatedbniftydata.push(item);
+                }
+              }
+            });
+          }
+          $scope.dataTableOptions = {
+            columns: [
+              { title: "Strike" },
+              { title: "Previus Call OI" },
+              { title: "Previus put OI" },
+              { title: "Call OI %" },
+              { title: "PUT OI %" },
+              { title: "Call OI" },
+              { title: "PUT OI" },
+              { title: "CALL VOLUME" },
+              { title: "PUT VOLUME" },
+              { title: "CALL PRICE" },
+              { title: "PUT PRICE" },
+              { title: "CALL IV" },
+              { title: "PUT IV" },
+              { title: "CALL PRICE CHANGE %" },
+              { title: "PUT PRICE CHANGE %" },
+              { title: "CALL BUY" },
+              { title: "CALL SELL" },
+              { title: "PUT BUY" },
+              { title: "PUT SELL" },
+            ],
+            columnMap: (p) => {
+              // console.log('here', highest_call_oi_p)
+              
+              if (p.CE && p.CE.pchangeinOpenInterest && (p.CE.pchangeinOpenInterest  >  highest_call_oi_p )) {
+                highest_call_oi_p = p.CE.pchangeinOpenInterest;
+                console.log('here 1', highest_call_oi_p)
+              } else if (p.PE && p.PE.pchangeinOpenInterest && (p.PE.pchangeinOpenInterest > highest_put_oi_p)) {
+                highest_put_oi_p = p.PE.pchangeinOpenInterest;
+              } else if (p.CE && p.CE.changeinOpenInterest && (p.CE.changeinOpenInterest > highest_call_oi)) {
+                highest_call_oi = p.CE.changeinOpenInterest;
+              } else if(p.PE && p.PE.changeinOpenInterest && (p.PE.changeinOpenInterest > highest_put_oi)) {
+                highest_put_oi = p.PE.changeinOpenInterest;
+              } else if (p.CE && p.CE.totalTradedVolume && (p.CE.totalTradedVolume > highest_call_vol)) {
+                highest_call_vol = p.CE.totalTradedVolume;
+              } else if (p.PE && p.PE.totalTradedVolume && (p.PE.totalTradedVolume > highest_put_vol)) {
+                highest_put_vol = p.PE.totalTradedVolume;
+              } else if (p.CE && p.CE.totalBuyQuantity && ( p.CE.totalBuyQuantity > highest_call_buy)) {
+                highest_call_buy = p.CE.totalBuyQuantity;
+              } else if (p.CE && p.CE.totalSellQuantity && (p.CE.totalSellQuantity > highest_call_sell)) {
+                highest_call_sell = p.CE.totalSellQuantity;
+              } else if (p.PE && p.PE.totalBuyQuantity && (p.PE.totalBuyQuantity > highest_put_buy)) {
+                highest_put_buy = p.PE.totalBuyQuantity;
+              } else if (p.PE && p.PE.totalSellQuantity && (p.PE.totalSellQuantity > highest_put_sell)) {
+                highest_put_sell = p.PE.totalSellQuantity;
+              }
+              return [
+                p.strikePrice,
+                p.CE && p.CE.openInterest ? p.CE.openInterest : "-",
+                p.PE && p.PE.openInterest ? p.PE.openInterest : "-",
+                p.CE && p.CE.pchangeinOpenInterest
+                  ? p.CE.pchangeinOpenInterest.toFixed(2)
+                  : "-",
+                p.PE && p.PE.pchangeinOpenInterest
+                  ? p.PE.pchangeinOpenInterest.toFixed(2)
+                  : "-",
+                p.CE && p.CE.changeinOpenInterest
+                  ? p.CE.changeinOpenInterest
+                  : "-",
+                p.PE && p.PE.changeinOpenInterest
+                  ? p.PE.changeinOpenInterest
+                  : "-",
+                p.CE && p.CE.totalTradedVolume ? p.CE.totalTradedVolume : "-",
+                p.PE && p.PE.totalTradedVolume ? p.PE.totalTradedVolume : "-",
+                p.CE && p.CE.lastPrice ? p.CE.lastPrice : "-",
+                p.PE && p.PE.lastPrice ? p.PE.lastPrice : "-",
+                p.CE && p.CE.impliedVolatility ? p.CE.impliedVolatility : "-",
+                p.PE && p.PE.impliedVolatility ? p.PE.impliedVolatility : "-",
+                p.CE && p.CE.pChange ? p.CE.pChange.toFixed(2) : "-",
+                p.PE && p.PE.pChange ? p.PE.pChange.toFixed(2) : "-",
+                p.CE && p.CE.totalBuyQuantity ? p.CE.totalBuyQuantity : "-",
+                p.CE && p.CE.totalSellQuantity ? p.CE.totalSellQuantity : "-",
+                p.PE && p.PE.totalBuyQuantity ? p.PE.totalBuyQuantity : "-",
+                p.PE && p.PE.totalSellQuantity ? p.PE.totalSellQuantity : "-",
+              ];
+            },
+            columnDefs: [
+              {
+                orderable: true,
+                className: "select-checkbox",
+                targets: 0,
+                sortable: true,
+                pageLength: 21,
+                aTargets: [0, 1],
+              },
+            ],
+            
+            rowCallback: (row, data, index) => {
+              console.log('-----++++++', data[3]);
+        
+              if (data[0] == $scope.ud) {
+                $(row).addClass("red");
+              } else if(data[3] == highest_call_oi_p) {
+                $(row).find("td").eq(3).addClass("pink");
+              } else if (data[4] == highest_put_oi_p) {
+                $(row).find("td").eq(4).addClass("pink");
+              } else if (data[5] == highest_call_oi) {
+                $(row).find("td").eq(5).addClass("blue");
+              } else if (data[6] == highest_put_oi) {
+                $(row).find("td").eq(6).addClass("blue");
+              } else if (data[7] == highest_call_vol) {
+                $(row).find("td").eq(7).addClass("green");
+              } else if (data[8] == highest_put_vol) {
+                $(row).find("td").eq(8).addClass("green");
+              } else if (data[15] == highest_call_buy) {
+                $(row).find("td").eq(15).addClass("green");
+              } else if (data[16] == highest_call_sell) {
+                $(row).find("td").eq(16).addClass("blue");
+              } else if (data[17] == highest_put_buy) {
+                $(row).find("td").eq(17).addClass("green");
+              } else if (data[18] == highest_put_sell) {
+                $(row).find("td").eq(18).addClass("blue");
+              }
+            },
+            select: {
+              style: "multi",
+              selector: "td:first-child",
+            },
+            // order: [[0, "desc"]],
+            lengthMenu: [
+              [25, 50, 100, -1],
+              [25, 50, 100, "All"],
+            ],
+            buttons: [
+              {
+                text: "Export",
+                className: "button button:hover",
+                extend: "csv",
+              },
+            ],
+          };
+        });
+
+        angular.element(document).ready(() => {
+          var bootElement = document.getElementById("tableExample");
+          var isInitialized = angular.element(bootElement).scope();
+          if (!isInitialized) {
+            angular.bootstrap(bootElement, ["tableExample"]);
+          }
+        });
+      });
+    }
+    banknifty();
+    firstinterval = setInterval(() => {
+      banknifty();
+    }, 300000);
+    function refresh() {
+      if (firstinterval) {
+        clearInterval(firstinterval);
+      } else if (timeout) {
+        clearTimeout(timeout);
+      }
+      var minute = document.getElementById("refresh").value;
+      var ms = minute * 60000;
+      timeout = setTimeout(() => {
+        banknifty();
+      }, ms);
+      document.getElementById("rftime").innerHTML = minute.toString();
+    }
+  </script>
+</html>
